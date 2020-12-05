@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LibellusCommon</name>
+    </assembly>
+    <members>
+        <member name="T:LibellusCommon.Utils">
+            <summary>
+            Contains Generel Utilities
+            </summary>
+        </member>
+    </members>
+</doc>

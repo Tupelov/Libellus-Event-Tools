@@ -2,9 +2,7 @@
 using System.Collections;
 using System.IO;
 
-/// <summary>
-/// A Library consisting of commonly used functions.
-/// </summary>
+
 namespace LibellusCommon
 {
 
@@ -13,6 +11,7 @@ namespace LibellusCommon
     /// </summary>
     public class Utils
     {
+        
         /// <summary>
         /// Unpacks file using PACPAK
         /// </summary>
@@ -21,7 +20,7 @@ namespace LibellusCommon
         {
 
         }
-
+        
         /// <summary>
         /// Returns a list of all files in directory.
         /// </summary>
@@ -29,10 +28,17 @@ namespace LibellusCommon
         /// <returns></returns>
         public static string[] GetFilesinDirectory(String directory) {
 
-            string[] filePaths = Directory.GetFiles(directory, "",
-                                         SearchOption.AllDirectories);
-            
-            return filePaths;
+            try
+            {
+                string[] filePaths = Directory.GetFiles(directory, "",
+                                             SearchOption.AllDirectories);
+
+                return filePaths;
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return null;
+            }
         }
 
         /// <summary>
@@ -46,11 +52,11 @@ namespace LibellusCommon
             ArrayList arr = new ArrayList();
             for(int i = 0; i < list.Length; i++)
             {
-                for (int i = 0; i < extension.Length; i++)
+                for (int j = 0; j < extension.Length; j++)
                 {
                     
                     string ext = Path.GetExtension(list[i]).ToUpper();
-                    if (ext.Equals(extension.ToUpper()))
+                    if (ext.Equals(extension[j].ToUpper()))
                     {
                         arr.Add(list[i]);
                     }

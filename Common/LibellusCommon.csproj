@@ -1,12 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>F:\Git\Libellus Tools\Common\LibellusCommon.xml</DocumentationFile>
+    <DocumentationFile>F:\Git\Libellus-Tools\Common\LibellusCommon.xml</DocumentationFile>
+    <OutputPath>F:\Git\Libellus-Tools\Dependencies\Libraries\LibellusCommon\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
   
-
+  
+  
 </Project>
