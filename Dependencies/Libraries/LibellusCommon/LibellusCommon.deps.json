@@ -8,14 +8,40 @@
     ".NETStandard,Version=v2.1": {},
     ".NETStandard,Version=v2.1/": {
       "LibellusCommon/1.0.0": {
+        "dependencies": {
+          "PAKPack": "1.0.0"
+        },
         "runtime": {
           "LibellusCommon.dll": {}
+        }
+      },
+      "AtlusFileSystemLibrary/1.0.0": {
+        "runtime": {
+          "AtlusFileSystemLibrary.dll": {}
+        }
+      },
+      "PAKPack/1.0.0": {
+        "dependencies": {
+          "AtlusFileSystemLibrary": "1.0.0"
+        },
+        "runtime": {
+          "PAKPack.dll": {}
         }
       }
     }
   },
   "libraries": {
     "LibellusCommon/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "AtlusFileSystemLibrary/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PAKPack/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
