@@ -24,7 +24,7 @@
         </member>
         <member name="M:LibellusCommon.Utils.FilterExtensions(System.String[],System.String[])">
             <summary>
-            Takes an array of filepaths and returns the ones that end in extension
+            Takes an array of filepaths and returns the ones that end in extension.
             </summary>
             <param name="list"></param>
             <param name="extension"></param>

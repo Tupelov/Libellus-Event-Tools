@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using PAKPack;
 
@@ -16,14 +16,25 @@ namespace LibellusCommon
         /// Unpacks file using PACPAK
         /// </summary>
         /// <param name="filepath"></param>
-        public static void UnpackPAK(String filepath)
+        public static string UnpackPAK(String filepath)
         {
+            
             string[] args = new string[3];
             args[0] = "unpack";
             args[1] = Path.GetFullPath(filepath);
-            string unpacked = filepath.Substring(filepath.Length - 4);
+            //string unpacked = filepath.Substring(filepath.Length - 4);
+            string unpacked = filepath + "_unpacked";
             args[2] = unpacked;
-            Program.RunPak(args);
+            try
+            {
+                Program.RunPak(args);
+            }
+            catch (Exception e)
+            {
+                
+            }
+            return unpacked;
+            
         }
         
         /// <summary>
@@ -47,14 +58,14 @@ namespace LibellusCommon
         }
 
         /// <summary>
-        /// Takes an array of filepaths and returns the ones that end in extension
+        /// Takes an array of filepaths and returns the ones that end in extension.
         /// </summary>
         /// <param name="list"></param>
         /// <param name="extension"></param>
         /// <returns></returns>
         public static string[] FilterExtensions(string[] list, string[] extension)
         {
-            ArrayList arr = new ArrayList();
+            List<string> arr = new List<string>();
             for(int i = 0; i < list.Length; i++)
             {
                 for (int j = 0; j < extension.Length; j++)
@@ -69,7 +80,8 @@ namespace LibellusCommon
 
                 }
             }
-            return (string[])arr.ToArray(typeof(string));
+            
+            return (string[])arr.ToArray();
         }
 
 
