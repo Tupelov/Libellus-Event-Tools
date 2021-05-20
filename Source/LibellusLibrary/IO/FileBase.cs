@@ -37,6 +37,10 @@ namespace LibellusLibrary.IO
 
 		public void Open(string path)
 		{
+			if (!File.Exists(path))
+			{
+				throw new ArgumentException("Error while opening file.\nFile does not exist!\nFile: "+path);
+			}
 			//Use a memory stream instead of using a file stream
 			using (MemoryStream stream = new MemoryStream(File.ReadAllBytes(path)))
 			{
