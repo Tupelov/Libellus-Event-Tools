@@ -9,10 +9,10 @@ namespace LibellusLibraryTest
 		{
 
 			Console.WriteLine("Starting Test!");
-			string testFilePath = "./Samples/E401_004.PM1";
+			string testFilePath = "./Samples/E401_004.PM2";
 			Console.WriteLine("Testing: {0}", testFilePath);
 			PmdFile testFile = new PmdFile(testFilePath);
-			testFile.Save("out.PM1");
+			testFile.Save("out.PM2");
 			Console.WriteLine("Finished tests, exiting.");
 
 		}

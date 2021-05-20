@@ -58,4 +58,26 @@ namespace LibellusLibrary.IO
 		}
 
 	}
+
+	//All FileTypes should atleast have this.
+	#region
+	/*
+	public class SomeFile: FileBase
+	{
+		public SomeFile(string path) { Open(path); }
+		public SomeFile(Stream stream, bool leaveOpen = false) { Open(stream, leaveOpen); }
+		public SomeFile(BinaryReader reader) { Open(reader); }
+
+		internal override void Read(BinaryReader reader)
+		{
+			return;
+		}
+
+		internal override void Write(BinaryWriter writer)
+		{
+			return;
+		}
+	}
+	*/
+	#endregion
 }

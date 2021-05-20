@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 using System.IO;
 using LibellusLibrary.IO;
 using System.Diagnostics;
+using LibellusLibrary.PmdFile.DataTypes;
+using LibellusLibrary.PmdFile.Common;
 
 namespace LibellusLibrary.PmdFile
 {
+
 	public class PmdFile : FileBase
 	{
+
 		//Header
 		public byte FileType { get; set; }
 		public byte FileFormat { get; set; }
 		public short UserID { get; set; }
-		public int FileSize
-		{
-			get { return getFileSize(); }
-
-		}
+		public int FileSize { get { return getFileSize(); } }
 		public char[] MagicCode { get; set; }//PMD1/PMD2/PMD3
 		public int ExpandSize { get; set; }
 		public int TypeTableCount => TypeTable.Count;//Expands to get{return TypeTable.Count}
@@ -34,6 +34,7 @@ namespace LibellusLibrary.PmdFile
 		public PmdFile(string path) { Open(path); }
 		public PmdFile(Stream stream, bool leaveOpen = false) { Open(stream, leaveOpen); }
 		public PmdFile(BinaryReader reader) { Open(reader); }
+
 
 		internal int getFileSize()
 		{
@@ -53,16 +54,15 @@ namespace LibellusLibrary.PmdFile
 			FileFormat = reader.ReadByte();
 			UserID = reader.ReadInt16();
 			//FileSize = reader.ReadInt32();
-			reader.FSkip(4);//S=FileSize is set using a setter
+			reader.FSkip(4);//FileSize is set using a setter
 			MagicCode = reader.ReadChars(4);
 			Console.WriteLine(MagicCode);
 			ExpandSize = reader.ReadInt32();
 			int typeTablecnt = reader.ReadInt32();
 			Version = reader.ReadInt32();
-			if (Version != 12 | Version != 3)
-			{
-				Console.WriteLine("Warning: PMD version isn't supported. Ver.{0}", Version);
-			}
+
+			Console.WriteLine("PMD File Ver.{0}", Version);
+
 			Reserve2 = reader.ReadInt32();
 			Reserve3 = reader.ReadInt32();
 			TypeTable = new List<PmdTypeTable>();
@@ -71,6 +71,7 @@ namespace LibellusLibrary.PmdFile
 			{
 				TypeTable.Add(new PmdTypeTable(reader));
 			}
+
 			return;
 
 		}
@@ -107,46 +108,52 @@ namespace LibellusLibrary.PmdFile
 				}
 			}
 		}
+
 	}
 
 	[DebuggerDisplay("Type: {Type}")]
 	public class PmdTypeTable : FileBase
 	{
 
-		public DataTypes Type { get; set; }
+		public DataTypeID Type { get; set; }
 		public int ItemSize { get; set; }
 		public int ItemCount => DataTable.Count;
 		public int ItemAddress { get; set; }
 
 		public List<PmdDataType> DataTable { get; set; }
 
+
 		public PmdTypeTable(string path) { Open(path); }
 		public PmdTypeTable(Stream stream, bool leaveOpen = false) { Open(stream, leaveOpen); }
 		public PmdTypeTable(BinaryReader reader) { Open(reader); }
 
+		public PmdTypeTable(DataTypeID type, int itemSize, List<PmdDataType> dataTable)
+		{
+			Type = type;
+			ItemSize = itemSize;
+			ItemAddress = 0;
+			DataTable = DataTable;
+			return;
+		}
+
 
 		internal override void Read(BinaryReader reader)
 		{
-			Type = (DataTypes)reader.ReadInt32();
+			Type = (DataTypeID)reader.ReadInt32();
 			ItemSize = reader.ReadInt32();
-			//reader.FSkip(4);//ItemSize is set using a setter
 			int dataCount = reader.ReadInt32();
 			ItemAddress = reader.ReadInt32();
 			DataTable = new List<PmdDataType>();
 
+			int currentItem = ItemAddress;
+			long currentPos = reader.FTell();
+			reader.FSeek(ItemAddress);
 			for (int i = 0; i < dataCount; i++)
 			{
-				long currentPos = reader.FTell();
-				reader.FSeek(ItemAddress);
-				PmdDataType Entry = Type switch
-				{
-					DataTypes.Name => new PmdDataName(reader),
-					_ => new PmdDataUnknown(reader, ItemSize)
-				};
+				PmdDataType Entry = PmdDataType.CreateDataType(Type, reader, ItemSize);
 				DataTable.Add(Entry);
-				reader.FSeek(currentPos);
 			}
-
+			reader.FSeek(currentPos);
 		}
 
 		internal override void Write(BinaryWriter writer)
@@ -155,39 +162,7 @@ namespace LibellusLibrary.PmdFile
 			writer.Write(ItemSize);
 			writer.Write(ItemCount);
 			writer.Write(ItemAddress);
-
-		}
-
-		public enum DataTypes : int
-		{
-			CutInfo = 0,
-			Name = 1,
-			Stage = 2,
-			Unit = 3,
-			Frame = 4,
-			Camera = 5,
-			Message = 6,
-			Effect = 7,
-			EffectData = 8,
-			UnitData = 9,
-			F1 = 10,
-			F2 = 11,
-			FTB = 12,
-			SLight = 13,
-			SFog = 14,
-			Blur2 = 15,
-			MultBlur = 16,
-			DistBlur = 17,
-			Filter = 18,
-			MultFilter = 19,
-			RipBlur = 20,
-
-			ObjectTable = 21,
-
-			RainData = 25,
-			BezierTable = 26,
-			RefTable = 27,
-			MAX = 28
+			return;
 		}
 
 	}

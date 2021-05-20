@@ -12,7 +12,7 @@ namespace LibellusLibrary.IO
 		/// <summary>
 		/// Makes reader seek to position.
 		/// </summary>
-		/// <param name="reader">The reader being used.</param>
+		/// <param name="reader">This reader.</param>
 		/// <param name="position">Position to seek to.</param>
 		public static void FSeek(this BinaryReader reader, long position)
 		{
