@@ -3,49 +3,11 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <StartupObject>LibellusLibraryTest.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Samples\E401_004.PM1" />
-    <None Remove="Samples\E401_004.PM2" />
-    <None Remove="Samples\E401_004.PM3" />
-    <None Remove="Samples\E501_050.PM1" />
-    <None Remove="Samples\E501_050.PM2" />
-    <None Remove="Samples\E501_050.PM3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Samples\E401_004.PM1">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Samples\E401_004.PM2">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Samples\E401_004.PM3">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Samples\E501_050.PM1">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Samples\E501_050.PM2">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Samples\E501_050.PM3">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\LibellusLibrary\LibellusLibrary.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Samples\E401_004.PM1" />
-    <Resource Include="Samples\E401_004.PM2" />
-    <Resource Include="Samples\E401_004.PM3" />
-    <Resource Include="Samples\E501_050.PM1" />
-    <Resource Include="Samples\E501_050.PM2" />
-    <Resource Include="Samples\E501_050.PM3" />
   </ItemGroup>
 
 </Project>
