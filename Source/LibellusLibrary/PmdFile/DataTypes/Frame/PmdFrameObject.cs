@@ -47,9 +47,7 @@ namespace LibellusLibrary.PmdFile.DataTypes.Frame
 
 		internal override void Write(BinaryWriter writer)
 		{
-			Console.WriteLine("Current Pos:{0}", writer.FTell());
 			writer.Write(Data);
-			Console.WriteLine("Current Pos:{0}", writer.FTell());
 			return;
 		}
 

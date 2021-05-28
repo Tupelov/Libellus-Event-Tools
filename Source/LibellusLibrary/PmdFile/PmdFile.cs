@@ -17,24 +17,23 @@ namespace LibellusLibrary.PmdFile
 	{
 
 		//Header
-		public byte FileType { get; set; }
-		public byte FileFormat { get; set; }
-		public short UserID { get; set; }
-		public int FileSize { get { return getFileSize(); } }
-		public char[] MagicCode { get; set; }//PMD1/PMD2/PMD3
-		public int ExpandSize { get; set; }
+		public byte FileType;
+		public byte FileFormat;
+		public short UserID;
+		public int FileSize => getFileSize();
+		public char[] MagicCode;//PMD1/PMD2/PMD3
+		public int ExpandSize;
 		public int TypeTableCount => TypeTable.Count;//Expands to get{return TypeTable.Count}
-		public int Version { get; set; }
-		public int Reserve2 { get; set; }
-		public int Reserve3 { get; set; }
+		public int Version;
+		public int Reserve2;
+		public int Reserve3;
 
-		List<PmdTypeTable> TypeTable { get; set; }
+		public List<PmdTypeTable> TypeTable;
 
 
 		public PmdFile(string path) { Open(path); }
 		public PmdFile(Stream stream, bool leaveOpen = false) { Open(stream, leaveOpen); }
 		public PmdFile(BinaryReader reader) { Open(reader); }
-
 
 		internal int getFileSize()
 		{
@@ -56,12 +55,12 @@ namespace LibellusLibrary.PmdFile
 			//FileSize = reader.ReadInt32();
 			reader.FSkip(4);//FileSize is set using a setter
 			MagicCode = reader.ReadChars(4);
-			Console.WriteLine(MagicCode);
+			//Console.WriteLine(MagicCode);
 			ExpandSize = reader.ReadInt32();
 			int typeTablecnt = reader.ReadInt32();
 			Version = reader.ReadInt32();
 
-			Console.WriteLine("PMD File Ver.{0}", Version);
+			//Console.WriteLine("PMD File Ver.{0}", Version);
 
 			Reserve2 = reader.ReadInt32();
 			Reserve3 = reader.ReadInt32();
@@ -115,12 +114,12 @@ namespace LibellusLibrary.PmdFile
 	public class PmdTypeTable : FileBase
 	{
 
-		public DataTypeID Type { get; set; }
-		public int ItemSize { get; set; }
+		public DataTypeID Type;
+		public int ItemSize;
 		public int ItemCount => DataTable.Count;
-		public int ItemAddress { get; set; }
+		public int ItemAddress;
 
-		public List<PmdDataType> DataTable { get; set; }
+		public List<PmdDataType> DataTable;
 
 
 		public PmdTypeTable(string path) { Open(path); }
@@ -132,7 +131,7 @@ namespace LibellusLibrary.PmdFile
 			Type = type;
 			ItemSize = itemSize;
 			ItemAddress = 0;
-			DataTable = DataTable;
+			DataTable = dataTable;
 			return;
 		}
 
@@ -145,7 +144,6 @@ namespace LibellusLibrary.PmdFile
 			ItemAddress = reader.ReadInt32();
 			DataTable = new List<PmdDataType>();
 
-			int currentItem = ItemAddress;
 			long currentPos = reader.FTell();
 			reader.FSeek(ItemAddress);
 			for (int i = 0; i < dataCount; i++)

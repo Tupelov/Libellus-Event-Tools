@@ -16,17 +16,29 @@ namespace LibellusLibrary.PmdFile.DataTypes
 	public abstract class PmdDataType : FileBase
 	{
 
-		public static PmdDataType CreateDataType(DataTypeID type, BinaryReader reader, int Size)
+		public static PmdDataType CreateDataType(DataTypeID type, BinaryReader reader, int Size=0)
 		{
 			PmdDataType Entry = type switch
 			{
-				DataTypeID.CutInfo => new PmdDataCutInfo(reader),
-				DataTypeID.Name => new PmdDataName(reader),
-				DataTypeID.Frame => new PmdDataFrame(reader),
-				_ => new PmdDataUnknown(reader, Size)
+				DataTypeID.CutInfo  => new PmdDataCutInfo(reader),
+				DataTypeID.Name     => new PmdDataName(reader),
+				DataTypeID.Frame    => new PmdDataFrame(reader),
+				_                   => new PmdDataUnknown(reader, Size)
 			};
 			return Entry;
 
+		}
+
+		public static System.Type GetDataType(DataTypeID type)
+		{
+			Type dataType = type switch
+			{
+				DataTypeID.CutInfo => typeof(PmdDataCutInfo),
+				DataTypeID.Name    => typeof(PmdDataName),
+				DataTypeID.Frame   => typeof(PmdDataFrame),
+				_                  => typeof(PmdDataUnknown)
+			};
+			return dataType.GetType();
 		}
 
 	}
@@ -156,13 +168,13 @@ namespace LibellusLibrary.PmdFile.DataTypes
 	}
 
 	[DebuggerDisplay("Type: {ObjectType}")]
-	class PmdDataFrame : PmdDataType
+	public class PmdDataFrame : PmdDataType
 	{
-		FrameObjectType ObjectType;
-		ushort Frame;
-		ushort Length;
-		short NameIndex;
-		PmdFrameObject Object;
+		public FrameObjectType ObjectType;
+		public ushort Frame;
+		public ushort Length;
+		public short NameIndex;
+		public PmdFrameObject Object;
 
 		public PmdDataFrame(string path) { Open(path); }
 		public PmdDataFrame(Stream stream, bool leaveOpen = false) { Open(stream, leaveOpen); }
