@@ -30,7 +30,7 @@ namespace LibellusLibraryTest
 #elif P4G
 			string eventFolder = "F:/Modding/Persona Modding/Persona 4 Golden/Files/Data-cpk-p4g/data.cpk_unpacked/event";
 #endif
-			string[] files = Directory.GetFiles(eventFolder, "*.pm*", SearchOption.AllDirectories);
+			//string[] files = Directory.GetFiles(eventFolder, "*.pm*", SearchOption.AllDirectories);
 			//searchForObject(files);
 
 			string testFilePath = "F:/Modding/Persona Modding/Persona 3/Files/data/EVENT/E400/E401_004.PM2";
@@ -46,7 +46,15 @@ namespace LibellusLibraryTest
 			PmdFile pmdFile = new(filePath);
 			string name = Path.GetFileName(filePath);
 			File.Copy(filePath, "./output/" + name);
+			
 			pmdFile.Save("./output/" + name + ".lib" + Path.GetExtension(filePath));
+			string json = pmdFile.ToJson();
+			using (BinaryWriter writer = new BinaryWriter(File.Create("./output/" + name + Path.GetExtension(filePath)+".json")))
+			{
+				writer.Write(json);
+			}
+			PmdFile pmdFile2 = PmdFile.FromJson(json);
+			pmdFile2.Save("./output/" + name + ".lib.json" + Path.GetExtension(filePath));
 		}
 
 		static void searchForObject(string[] files)
@@ -59,14 +67,14 @@ namespace LibellusLibraryTest
 				
 				List<PmdTypeTable> typeTable = pmdFile.TypeTable;
 
-				foreach (var type in typeTable.Where(x => x.Type == DataTypeID.Frame))
+				foreach (var type in typeTable.Where(x => x.Type == DataTypeID.CutInfo))
 				{
-					foreach (PmdDataFrame frame in type.DataTable)
+					foreach (PmdDataCutInfo cutInfo in type.DataTable)
 					{
-						if (frame.ObjectType == FrameObjectType.B_UP)
+						if (cutInfo.FieldMajorNo==32 && cutInfo.FieldMinorNo==8)
 						{
-							Console.WriteLine("Found use of B_UP!\ninside file: {0}", pmd);
-							log.WriteLine("Found use of B_UP!\ninside file: {0}", pmd);
+							Console.WriteLine("Found use of field 32 08!\ninside file: {0}", pmd);
+							log.WriteLine("Found use of field 32 08!\ninside file: {0}", pmd);
 						}
 					}
 				}
