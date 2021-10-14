@@ -2,7 +2,7 @@
   "profiles": {
     "LibellusEventEditingTool": {
       "commandName": "Project",
-      "commandLineArgs": "\"F:\\Git\\Libellus Event Tools\\Source\\LibellusLibraryTest\\bin\\Debug\\net5.0\\output\\E401_004.PM2\""
+      "commandLineArgs": "\"F:\\Git\\Libellus Event Tools\\Source\\LibellusLibraryTest\\bin\\Debug\\net5.0\\output\\E401_004.PM2\" \"F:\\Git\\Libellus Event Tools\\Source\\LibellusLibraryTest\\bin\\Debug\\net5.0\\output\\E401_004.PM2.json\""
     }
   }
 }

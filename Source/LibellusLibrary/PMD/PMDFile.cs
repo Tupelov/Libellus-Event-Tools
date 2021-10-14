@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 using System.IO;
 using LibellusLibrary.IO;
 using System.Diagnostics;
-using LibellusLibrary.PmdFile.DataTypes;
-using LibellusLibrary.PmdFile.Common;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
-namespace LibellusLibrary.PmdFile
+namespace LibellusLibrary.PMD
 {
 
 	public class PmdFile : FileBase
@@ -29,7 +28,7 @@ namespace LibellusLibrary.PmdFile
 		[JsonIgnore] public int Reserve2;
 		[JsonIgnore] public int Reserve3;
 
-		public List<PmdTypeTable> TypeTable;
+		public List<Types.TypeTable> TypeTable;
 
 		public PmdFile() { }
 		public PmdFile(string path) { Open(path); }
@@ -41,7 +40,7 @@ namespace LibellusLibrary.PmdFile
 			int fileSize = 0x20;//Header Size
 			fileSize = fileSize + (0x10 * TypeTableCount);//TypeTableSize
 
-			foreach (PmdTypeTable typeTableEntry in TypeTable)
+			foreach (Types.TypeTable typeTableEntry in TypeTable)
 			{
 				fileSize += typeTableEntry.ItemSize * typeTableEntry.ItemCount;
 			}
@@ -65,11 +64,11 @@ namespace LibellusLibrary.PmdFile
 
 			Reserve2 = reader.ReadInt32();
 			Reserve3 = reader.ReadInt32();
-			TypeTable = new List<PmdTypeTable>();
+			TypeTable = new List<Types.TypeTable>();
 
 			for (int i = 0; i < typeTablecnt; i++)
 			{
-				TypeTable.Add(new PmdTypeTable(reader));
+				TypeTable.Add(new Types.TypeTable(reader));
 			}
 
 			return;
@@ -92,7 +91,7 @@ namespace LibellusLibrary.PmdFile
 			//First we write while adjusting the data offsets
 			long dataStart = writer.FTell() + (0x10 * TypeTableCount);
 			long dataCurrent = dataStart;
-			foreach (PmdTypeTable typeTableEntry in TypeTable)
+			foreach (Types.TypeTable typeTableEntry in TypeTable)
 			{
 				typeTableEntry.ItemAddress = (int)dataCurrent;
 				typeTableEntry.Write(writer);
@@ -100,9 +99,9 @@ namespace LibellusLibrary.PmdFile
 			}
 			writer.FSeek(dataStart);
 			//Now we write the data
-			foreach (PmdTypeTable typeTableEntry in TypeTable)
+			foreach (Types.TypeTable typeTableEntry in TypeTable)
 			{
-				foreach (PmdDataType dataTypeEntry in typeTableEntry.DataTable)
+				foreach (Types.DataType dataTypeEntry in typeTableEntry.DataTable)
 				{
 					dataTypeEntry.Write(writer);
 				}
@@ -113,7 +112,7 @@ namespace LibellusLibrary.PmdFile
 		{
 			return Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented, new Newtonsoft.Json.JsonSerializerSettings
 			{
-				TypeNameHandling = TypeNameHandling.Auto
+				//TypeNameHandling = TypeNameHandling.Auto
 
 			});
 		}
@@ -129,60 +128,4 @@ namespace LibellusLibrary.PmdFile
 		}
 
 	}
-
-	[DebuggerDisplay("Type: {Type}")]
-	public class PmdTypeTable : FileBase
-	{
-
-		public DataTypeID Type;
-		public int ItemSize;
-		[JsonIgnore] public int ItemCount => DataTable.Count;
-		[JsonIgnore] public int ItemAddress;
-
-		public List<PmdDataType> DataTable;
-
-		public PmdTypeTable() { }
-		public PmdTypeTable(string path) { Open(path); }
-		public PmdTypeTable(Stream stream, bool leaveOpen = false) { Open(stream, leaveOpen); }
-		public PmdTypeTable(BinaryReader reader) { Open(reader); }
-
-		public PmdTypeTable(DataTypeID type, int itemSize, List<PmdDataType> dataTable)
-		{
-			Type = type;
-			ItemSize = itemSize;
-			ItemAddress = 0;
-			DataTable = dataTable;
-			return;
-		}
-
-
-		internal override void Read(BinaryReader reader)
-		{
-			Type = (DataTypeID)reader.ReadInt32();
-			ItemSize = reader.ReadInt32();
-			int dataCount = reader.ReadInt32();
-			ItemAddress = reader.ReadInt32();
-			DataTable = new List<PmdDataType>();
-
-			long currentPos = reader.FTell();
-			reader.FSeek(ItemAddress);
-			for (int i = 0; i < dataCount; i++)
-			{
-				PmdDataType Entry = PmdDataType.CreateDataType(Type, reader, ItemSize);
-				DataTable.Add(Entry);
-			}
-			reader.FSeek(currentPos);
-		}
-
-		internal override void Write(BinaryWriter writer)
-		{
-			writer.Write((int)Type);
-			writer.Write(ItemSize);
-			writer.Write(ItemCount);
-			writer.Write(ItemAddress);
-			return;
-		}
-
-	}
-
 }

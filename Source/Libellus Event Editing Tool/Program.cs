@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
-using LibellusLibrary.PmdFile;
+using LibellusLibrary.PMD;
+
 
 namespace LibellusEventEditingTool
 {
@@ -23,10 +24,11 @@ namespace LibellusEventEditingTool
 					PmdFile pmdFile = new(file);
 					string json = pmdFile.ToJson();
 
-					using (BinaryWriter writer = new BinaryWriter(File.Create(file + ".json")))
+					File.WriteAllText(file +".json", json);
+					/*using (BinaryWriter writer = new BinaryWriter(File.Create(file + ".json")))
 					{
 						writer.Write(json);
-					}
+					}*/
 					continue;
 				}
 				
@@ -35,7 +37,7 @@ namespace LibellusEventEditingTool
 					Console.WriteLine("Coverting to PMD: ", file);
 					string json = File.ReadAllText(file);
 					PmdFile pmdFile = PmdFile.FromJson(json);
-					string pmdext = new(pmdFile.MagicCode);
+					string pmdext = "PM"+pmdFile.MagicCode[3];
 					pmdFile.Save(file + "." + pmdext);
 					//pmdFile2.Save("./output/" + name + ".lib.json" + Path.GetExtension(filePath));
 				}

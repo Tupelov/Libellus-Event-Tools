@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,8 +8,7 @@ using System.Threading.Tasks;
 using System.IO;
 using LibellusLibrary.IO;
 using System.Diagnostics;
-using LibellusLibrary.PmdFile.Common;
-using LibellusLibrary.PmdFile.DataTypes.Frame;
+
 
 namespace LibellusLibrary.PmdFile.DataTypes
 {
@@ -16,30 +16,7 @@ namespace LibellusLibrary.PmdFile.DataTypes
 	public abstract class PmdDataType : FileBase
 	{
 
-		public static PmdDataType CreateDataType(DataTypeID type, BinaryReader reader, int Size=0)
-		{
-			PmdDataType Entry = type switch
-			{
-				DataTypeID.CutInfo  => new PmdDataCutInfo(reader),
-				DataTypeID.Name     => new PmdDataName(reader),
-				DataTypeID.Frame    => new PmdDataFrame(reader),
-				_                   => new PmdDataUnknown(reader, Size)
-			};
-			return Entry;
 
-		}
-
-		public static System.Type GetDataType(DataTypeID type)
-		{
-			Type dataType = type switch
-			{
-				DataTypeID.CutInfo => typeof(PmdDataCutInfo),
-				DataTypeID.Name    => typeof(PmdDataName),
-				DataTypeID.Frame   => typeof(PmdDataFrame),
-				_                  => typeof(PmdDataUnknown)
-			};
-			return dataType.GetType();
-		}
 
 	}
 
@@ -168,7 +145,7 @@ namespace LibellusLibrary.PmdFile.DataTypes
 			return;
 		}
 	}
-
+	
 	[DebuggerDisplay("Type: {ObjectType}")]
 	public class PmdDataFrame : PmdDataType
 	{
@@ -206,3 +183,4 @@ namespace LibellusLibrary.PmdFile.DataTypes
 	}
 
 }
+*/

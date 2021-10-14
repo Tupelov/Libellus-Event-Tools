@@ -1,12 +1,11 @@
 ﻿#define P3
 
 using System;
-using LibellusLibrary.PmdFile;
-using LibellusLibrary.PmdFile.Common;
 using System.IO;
 using System.Collections.Generic;
-using LibellusLibrary.PmdFile.DataTypes;
 using System.Linq;
+using LibellusLibrary.PMD;
+using LibellusLibrary.PMD.Types;
 
 namespace LibellusLibraryTest
 {
@@ -26,7 +25,7 @@ namespace LibellusLibraryTest
 
 			//Yes I know I hardcoded it to my computer.
 #if P3
-			string eventFolder = "F:/Modding/Persona Modding/Persona 3/Files/data/EVENT";
+			//string eventFolder = "F:/Modding/Persona Modding/Persona 3/Files/data/EVENT";
 #elif P4G
 			string eventFolder = "F:/Modding/Persona Modding/Persona 4 Golden/Files/Data-cpk-p4g/data.cpk_unpacked/event";
 #endif
@@ -65,18 +64,18 @@ namespace LibellusLibraryTest
 			{
 				PmdFile pmdFile = new(pmd);
 				
-				List<PmdTypeTable> typeTable = pmdFile.TypeTable;
+				List<TypeTable> typeTable = pmdFile.TypeTable;
 
 				foreach (var type in typeTable.Where(x => x.Type == DataTypeID.CutInfo))
 				{
-					foreach (PmdDataCutInfo cutInfo in type.DataTable)
+					/*foreach (PmdDataCutInfo cutInfo in type.DataTable)
 					{
 						if (cutInfo.FieldMajorNo==32 && cutInfo.FieldMinorNo==8)
 						{
 							Console.WriteLine("Found use of field 32 08!\ninside file: {0}", pmd);
 							log.WriteLine("Found use of field 32 08!\ninside file: {0}", pmd);
 						}
-					}
+					}*/
 				}
 			}
 
