@@ -36,7 +36,7 @@ namespace LibellusLibrary.PMD.Types
 			{
 				DataTypeID.CutInfo => typeof(CutInfo),
 				DataTypeID.Name => typeof(Name),
-				//DataTypeID.Frame => typeof(PmdDataFrame),
+				DataTypeID.Frame => typeof(Frame),
 				DataTypeID.Message => typeof(Message),
 				_ => typeof(Unknown)
 			};

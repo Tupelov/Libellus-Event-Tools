@@ -35,7 +35,8 @@ namespace LibellusEventEditingTool
 					//pmdFile2.Save("./output/" + name + ".lib.json" + Path.GetExtension(filePath));
 				}
 			}
-			Console.WriteLine("Exiting...");
+			Console.WriteLine("Press Any Button To Exit.");
+			Console.ReadKey();
 			return;
 		}
 	}

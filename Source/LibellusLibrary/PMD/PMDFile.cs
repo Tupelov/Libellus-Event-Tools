@@ -147,6 +147,29 @@ namespace LibellusLibrary.PMD
 				List<Types.IExternalFile> externalFiles = type.DataTable.Cast<Types.IExternalFile>().ToList();
 				foreach (Types.IExternalFile external in externalFiles)
 				{
+					if(external.GetType()==typeof(Types.Message))
+					{// Messages dont have a name index so we have to find them manually
+						bool nameExists = false;
+						foreach (var nameData in names)
+						{
+							if (nameData.String.Contains(".msg"))
+							{
+								external.SaveFile(path, nameData.String);
+								nameExists = true;
+								break;
+							}
+							
+						}
+						if (!nameExists)
+						{
+							Console.WriteLine("WARNING: Couldnt find the name for the message! Adding a new name: message.msg");
+							var name = new Types.Name();
+							name.String = "message.msg";
+							names.Add(name);
+							external.SaveFile(path, name.String);
+						}
+
+					}
 					external.SaveFile(path, names[external.NameIndex].String);
 				}
 			}
