@@ -4,7 +4,7 @@ namespace LibellusLibrary.PMD.Types
 {
 	public class CutInfo : DataType
 	{
-		public DataTypeID TypeID = 0;
+		public override DataTypeID TypeID => DataTypeID.CutInfo;
 
 
 		public int FirstFrame;
@@ -54,4 +54,5 @@ namespace LibellusLibrary.PMD.Types
 		}
 
 	}
+	
 }

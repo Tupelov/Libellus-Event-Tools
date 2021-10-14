@@ -4,18 +4,20 @@ using LibellusLibrary.Converters;
 
 namespace LibellusLibrary.PMD.Types
 {
-	public class Unknown : DataType
+	public class Unknown : DataType, IVariableSize
 	{
+		public override DataTypeID TypeID => _typeID;
+		private DataTypeID _typeID;
+
 		[JsonConverter(typeof(ByteArrayToHexArray))]
 		public byte[] Data;
-		DataTypeID TypeID;
 		[JsonIgnore] public int DataSize;
 
 		public Unknown() { }
-		public Unknown(DataTypeID type) { TypeID = type; }
-		public Unknown(string path, int size, DataTypeID type) { DataSize = size; Open(path); TypeID = type; }
-		public Unknown(Stream stream, int size, DataTypeID type, bool leaveOpen = false) { DataSize = size; Open(stream, leaveOpen); TypeID = type; }
-		public Unknown(BinaryReader reader, int size, DataTypeID type) { DataSize = size; Open(reader); TypeID = type; }
+		public Unknown(DataTypeID type) { _typeID = type; }
+		public Unknown(string path, int size, DataTypeID type) { DataSize = size; Open(path); _typeID = type; }
+		public Unknown(Stream stream, int size, DataTypeID type, bool leaveOpen = false) { DataSize = size; Open(stream, leaveOpen); _typeID = type; }
+		public Unknown(BinaryReader reader, int size, DataTypeID type) { DataSize = size; Open(reader); _typeID = type; }
 
 		internal override void Read(BinaryReader reader)
 		{
@@ -26,6 +28,11 @@ namespace LibellusLibrary.PMD.Types
 		internal override void Write(BinaryWriter writer)
 		{
 			writer.Write(Data);
+		}
+
+		public void SetType(DataTypeID type)
+		{
+			_typeID = type;
 		}
 	}
 }

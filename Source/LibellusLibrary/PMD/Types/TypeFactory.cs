@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace LibellusLibrary.PMD.Types
 {
@@ -14,9 +15,13 @@ namespace LibellusLibrary.PMD.Types
 		public static DataType CreateDataType(DataTypeID type, BinaryReader reader, int size = 0)
 		{
 			Type dataType = GetDataType(type);
-			if(dataType == typeof(Unknown))
+			if(IsDataTypeVariableSize(dataType))
 			{
-				return (DataType)Activator.CreateInstance(dataType, reader, size, type);
+				if (dataType == typeof(Unknown))
+				{
+					return (DataType)Activator.CreateInstance(dataType, reader, size, type);
+				}
+				return (DataType)Activator.CreateInstance(dataType, reader, size);
 			}
 			else
 			{
@@ -32,9 +37,19 @@ namespace LibellusLibrary.PMD.Types
 				DataTypeID.CutInfo => typeof(CutInfo),
 				DataTypeID.Name => typeof(Name),
 				//DataTypeID.Frame => typeof(PmdDataFrame),
+				DataTypeID.Message => typeof(Message),
 				_ => typeof(Unknown)
 			};
 			return dataType;
+		}
+
+		public static bool IsDataTypeVariableSize(Type type)
+		{
+			if (type.GetInterfaces().Contains(typeof(IVariableSize)))
+			{
+				return true;
+			}
+			return false;
 		}
 	}
 

@@ -22,21 +22,14 @@ namespace LibellusEventEditingTool
 				{
 					Console.WriteLine("Coverting to Json: ", file);
 					PmdFile pmdFile = new(file);
-					string json = pmdFile.ToJson();
-
-					File.WriteAllText(file +".json", json);
-					/*using (BinaryWriter writer = new BinaryWriter(File.Create(file + ".json")))
-					{
-						writer.Write(json);
-					}*/
+					pmdFile.ExtractPmd(new FileInfo(file).Directory.FullName + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(file));
 					continue;
 				}
 				
 				if(ext == ".json")
 				{
 					Console.WriteLine("Coverting to PMD: ", file);
-					string json = File.ReadAllText(file);
-					PmdFile pmdFile = PmdFile.FromJson(json);
+					PmdFile pmdFile = PmdFile.FromJson(file);
 					string pmdext = "PM"+pmdFile.MagicCode[3];
 					pmdFile.Save(file + "." + pmdext);
 					//pmdFile2.Save("./output/" + name + ".lib.json" + Path.GetExtension(filePath));

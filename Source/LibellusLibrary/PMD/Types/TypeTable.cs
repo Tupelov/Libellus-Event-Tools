@@ -99,7 +99,7 @@ namespace LibellusLibrary.PMD.Types
 			{
 				foreach(Unknown unkData in data)
 				{
-					unkData.TypeID = typeTable.Type;
+					unkData.SetType(typeTable.Type);
 				}
 			}
 			typeTable.DataTable = data.Cast<DataType>().ToList();

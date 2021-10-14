@@ -1,21 +1,27 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.Linq;
 
 namespace LibellusLibrary.PMD.Types
 {
-	[DebuggerDisplay("Name: {Name}")]
+	[DebuggerDisplay("Name: {String}")]
 	public class Name : DataType
 	{
+		public override DataTypeID TypeID => DataTypeID.Name;
 
+		public string String
+		{
+			get { return _string.Replace("\0", string.Empty); }
+			set
+			{
+				if (value.Length > 32)
+				{
+					throw new System.Exception("Name can only be 32 characters!\nInputed String: " + value);
+				}
+				_string = value;
+			}
+		}
 
-		public string String { 
-			get { return new string(_Name).Replace("\0",string.Empty); } 
-			set {
-				_Name = value.ToCharArray().Take(32).ToArray(); 
-			}  }
-
-		private char[] _Name;
+		private string _string;
 
 		public Name() { }
 		public Name(string path) { Open(path); }
@@ -24,12 +30,12 @@ namespace LibellusLibrary.PMD.Types
 
 		internal override void Read(BinaryReader reader)
 		{
-			_Name = reader.ReadChars(32);
+			String = new(reader.ReadChars(32));
 			return;
 		}
 		internal override void Write(BinaryWriter writer)
 		{
-			char[] temp = _Name;
+			char[] temp = String.ToCharArray();
 			System.Array.Resize(ref temp, 32);
 			writer.Write(temp);
 		}

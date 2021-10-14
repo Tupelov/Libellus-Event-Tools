@@ -2,6 +2,8 @@
 using System.IO;
 using Newtonsoft.Json;
 using LibellusLibrary.IO;
+using System.Linq;
+using System;
 
 namespace LibellusLibrary.PMD
 {
@@ -109,14 +111,49 @@ namespace LibellusLibrary.PMD
 			});
 		}
 
-		public static PmdFile FromJson(string json)
+		public static PmdFile FromJson(string jsonpath)
 		{
-			return Newtonsoft.Json.JsonConvert.DeserializeObject<PmdFile>(json, new JsonSerializerSettings
+			string json = File.ReadAllText(jsonpath);
+
+			PmdFile pmdFile = Newtonsoft.Json.JsonConvert.DeserializeObject<PmdFile>(json, new JsonSerializerSettings
 
 			{
 				TypeNameHandling = TypeNameHandling.Auto
 
 			});
+
+			// Save External Files
+			List<Types.Name> names = pmdFile.TypeTable.Find(x => x.Type == Types.DataTypeID.Name).DataTable.Cast<Types.Name>().ToList();
+			List<Types.TypeTable> externalListTypeTable = pmdFile.TypeTable.Where(x => Types.TypeFactory.GetDataType(x.Type).GetInterfaces().Contains(typeof(Types.IExternalFile))).ToList();
+			foreach (var type in externalListTypeTable)
+			{
+				List<Types.IExternalFile> externalFiles = type.DataTable.Cast<Types.IExternalFile>().ToList();
+				foreach (Types.IExternalFile external in externalFiles)
+				{
+					external.LoadFile(new FileInfo(jsonpath).Directory.FullName, names[external.NameIndex].String);
+				}
+			}
+
+			return pmdFile;
+		}
+
+		public void ExtractPmd(string path)
+		{
+			// Extract External Files
+			List<Types.Name> names = TypeTable.Find(x => x.Type == Types.DataTypeID.Name).DataTable.Cast<Types.Name>().ToList();
+			List<Types.TypeTable> externalListTypeTable = TypeTable.Where(x => Types.TypeFactory.GetDataType(x.Type).GetInterfaces().Contains(typeof(Types.IExternalFile))).ToList();
+			foreach (var type in externalListTypeTable)
+			{
+				List<Types.IExternalFile> externalFiles = type.DataTable.Cast<Types.IExternalFile>().ToList();
+				foreach (Types.IExternalFile external in externalFiles)
+				{
+					external.SaveFile(path, names[external.NameIndex].String);
+				}
+			}
+
+			DirectoryInfo info = Directory.CreateDirectory(path);
+			string json = ToJson();
+			File.WriteAllText(path + Path.DirectorySeparatorChar + info.Name + ".PM" + MagicCode[3] + ".json", json);
 		}
 
 	}

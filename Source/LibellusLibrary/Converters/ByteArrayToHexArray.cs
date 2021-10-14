@@ -28,7 +28,7 @@ namespace LibellusLibrary.Converters
                          .ToArray();
                 }
             }
-            return Enumerable.Empty<byte>();
+            return Enumerable.Empty<byte>().ToArray();
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
