@@ -12,7 +12,7 @@ using System.Collections;
 namespace LibellusLibrary.PMD.Types
 {
 	[JsonConverter(typeof(TypeTableJsonConverter))]
-	public class TypeTable: FileBase
+	public class TypeTable : FileBase
 	{
 
 		[JsonConverter(typeof(StringEnumConverter))]
@@ -42,7 +42,7 @@ namespace LibellusLibrary.PMD.Types
 		internal override void Read(BinaryReader reader)
 		{
 			Type = (DataTypeID)reader.ReadInt32();
-			ItemSize =reader.ReadInt32();
+			ItemSize = reader.ReadInt32();
 			int dataCount = reader.ReadInt32();
 			ItemAddress = reader.ReadInt32();
 			DataTable = new List<DataType>();
@@ -76,7 +76,7 @@ namespace LibellusLibrary.PMD.Types
 			return (IList)Activator.CreateInstance(genericListType);
 		}
 
-		public override void WriteJson(JsonWriter writer, TypeTable value, JsonSerializer serializer){		}
+		public override void WriteJson(JsonWriter writer, TypeTable value, JsonSerializer serializer) { }
 		public override bool CanWrite => false;
 		public override TypeTable ReadJson(JsonReader reader, Type objectType, TypeTable existingValue, bool hasExistingValue, JsonSerializer serializer)
 		{
@@ -87,10 +87,23 @@ namespace LibellusLibrary.PMD.Types
 			Type type = TypeFactory.GetDataType(typeTable.Type);
 
 			var data = CreateGenericList(type);
-
-			serializer.Populate(jsonObject["DataTable"].CreateReader(), data);
+			try {
+				serializer.Populate(jsonObject["DataTable"].CreateReader(), data);
+			}
+			catch (Newtonsoft.Json.JsonSerializationException e)
+			{
+				Console.WriteLine("An exception occured! We'll try to roll with it anyways.");
+				Console.WriteLine(e);
+			}
+			if (data.GetType() == typeof(List<Unknown>))
+			{
+				foreach(Unknown unkData in data)
+				{
+					unkData.TypeID = typeTable.Type;
+				}
+			}
 			typeTable.DataTable = data.Cast<DataType>().ToList();
-				
+
 
 			return typeTable;
 		}

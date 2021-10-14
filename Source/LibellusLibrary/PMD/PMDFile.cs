@@ -1,21 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using System.Collections.Generic;
 using System.IO;
-using LibellusLibrary.IO;
-using System.Diagnostics;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using LibellusLibrary.IO;
 
 namespace LibellusLibrary.PMD
 {
 
 	public class PmdFile : FileBase
 	{
-
 		//Header
 		[JsonIgnore] public byte FileType;
 		[JsonIgnore] public byte FileFormat;

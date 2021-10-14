@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace LibellusLibrary.PMD.Types
 {
 	public class CutInfo : DataType
 	{
+		public DataTypeID TypeID = 0;
+
 
 		public int FirstFrame;
 		public int LastFrame;

@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibellusLibrary.PMD.Types
 {
@@ -35,7 +30,7 @@ namespace LibellusLibrary.PMD.Types
 			Type dataType = type switch
 			{
 				DataTypeID.CutInfo => typeof(CutInfo),
-				//DataTypeID.Name => typeof(PmdDataName),
+				DataTypeID.Name => typeof(Name),
 				//DataTypeID.Frame => typeof(PmdDataFrame),
 				_ => typeof(Unknown)
 			};

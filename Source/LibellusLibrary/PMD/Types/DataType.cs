@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using LibellusLibrary.IO;
 
 namespace LibellusLibrary.PMD.Types
 {
-    
-	public abstract class DataType: FileBase
+
+	public abstract class DataType : FileBase
 	{
-        [JsonIgnore] public DataTypeID TypeID;
+		[JsonIgnore] public DataTypeID TypeID;
 	}
-    
+
 }
