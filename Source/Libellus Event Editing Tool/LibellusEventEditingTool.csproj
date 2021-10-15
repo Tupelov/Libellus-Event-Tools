@@ -4,10 +4,29 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>LibellusEventEditingTool</RootNamespace>
+    <AssemblyName>LEET</AssemblyName>
+    <ApplicationIcon>heeho.ico</ApplicationIcon>
+    <Authors>Tupelov</Authors>
+    <Product />
+    <Company />
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <NeutralLanguage />
+    <RepositoryUrl>https://github.com/Tupelov/Libellus-Event-Tools</RepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\LibellusLibrary\LibellusLibrary.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

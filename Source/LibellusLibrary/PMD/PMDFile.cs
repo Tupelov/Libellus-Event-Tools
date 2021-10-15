@@ -7,7 +7,6 @@ using System;
 
 namespace LibellusLibrary.PMD
 {
-
 	public class PmdFile : FileBase
 	{
 		//Header
@@ -123,14 +122,17 @@ namespace LibellusLibrary.PMD
 			});
 
 			// Save External Files
-			List<Types.Name> names = pmdFile.TypeTable.Find(x => x.Type == Types.DataTypeID.Name).DataTable.Cast<Types.Name>().ToList();
-			List<Types.TypeTable> externalListTypeTable = pmdFile.TypeTable.Where(x => Types.TypeFactory.GetDataType(x.Type).GetInterfaces().Contains(typeof(Types.IExternalFile))).ToList();
-			foreach (var type in externalListTypeTable)
+			if (pmdFile.TypeTable.Find(x => x.Type == Types.DataTypeID.Name) != null)
 			{
-				List<Types.IExternalFile> externalFiles = type.DataTable.Cast<Types.IExternalFile>().ToList();
-				foreach (Types.IExternalFile external in externalFiles)
+				List<Types.Name> names = pmdFile.TypeTable.Find(x => x.Type == Types.DataTypeID.Name).DataTable.Cast<Types.Name>().ToList();
+				List<Types.TypeTable> externalListTypeTable = pmdFile.TypeTable.Where(x => Types.TypeFactory.GetDataType(x.Type).GetInterfaces().Contains(typeof(Types.IExternalFile))).ToList();
+				foreach (var type in externalListTypeTable)
 				{
-					external.LoadFile(new FileInfo(jsonpath).Directory.FullName, names[external.NameIndex].String);
+					List<Types.IExternalFile> externalFiles = type.DataTable.Cast<Types.IExternalFile>().ToList();
+					foreach (Types.IExternalFile external in externalFiles)
+					{
+						external.LoadFile(new FileInfo(jsonpath).Directory.FullName, names[external.NameIndex].String);
+					}
 				}
 			}
 
@@ -142,40 +144,42 @@ namespace LibellusLibrary.PMD
 			DirectoryInfo info = Directory.CreateDirectory(path);
 
 			// Extract External Files
-			List<Types.Name> names = TypeTable.Find(x => x.Type == Types.DataTypeID.Name).DataTable.Cast<Types.Name>().ToList();
-			List<Types.TypeTable> externalListTypeTable = TypeTable.Where(x => Types.TypeFactory.GetDataType(x.Type).GetInterfaces().Contains(typeof(Types.IExternalFile))).ToList();
-			foreach (var type in externalListTypeTable)
+			if (TypeTable.Find(x => x.Type == Types.DataTypeID.Name) != null)
 			{
-				List<Types.IExternalFile> externalFiles = type.DataTable.Cast<Types.IExternalFile>().ToList();
-				foreach (Types.IExternalFile external in externalFiles)
+				List<Types.Name> names = TypeTable.Find(x => x.Type == Types.DataTypeID.Name).DataTable.Cast<Types.Name>().ToList();
+				List<Types.TypeTable> externalListTypeTable = TypeTable.Where(x => Types.TypeFactory.GetDataType(x.Type).GetInterfaces().Contains(typeof(Types.IExternalFile))).ToList();
+				foreach (var type in externalListTypeTable)
 				{
-					if(external.GetType()==typeof(Types.Message))
-					{// Messages dont have a name index so we have to find them manually
-						bool nameExists = false;
-						foreach (var nameData in names)
-						{
-							if (nameData.String.Contains(".msg"))
+					List<Types.IExternalFile> externalFiles = type.DataTable.Cast<Types.IExternalFile>().ToList();
+					foreach (Types.IExternalFile external in externalFiles)
+					{
+						if (external.GetType() == typeof(Types.Message))
+						{// Messages dont have a name index so we have to find them manually
+							bool nameExists = false;
+							foreach (var nameData in names)
 							{
-								external.SaveFile(path, nameData.String);
-								nameExists = true;
-								break;
-							}
-							
-						}
-						if (!nameExists)
-						{
-							Console.WriteLine("WARNING: Couldnt find the name for the message! Adding a new name: message.msg");
-							var name = new Types.Name();
-							name.String = "message.msg";
-							names.Add(name);
-							external.SaveFile(path, name.String);
-						}
+								if (nameData.String.Contains(".msg"))
+								{
+									external.SaveFile(path, nameData.String);
+									nameExists = true;
+									break;
+								}
 
+							}
+							if (!nameExists)
+							{
+								Console.WriteLine("WARNING: Couldnt find the name for the message! Adding a new name: message.msg");
+								var name = new Types.Name();
+								name.String = "message.msg";
+								names.Add(name);
+								external.SaveFile(path, name.String);
+							}
+
+						}
+						external.SaveFile(path, names[external.NameIndex].String);
 					}
-					external.SaveFile(path, names[external.NameIndex].String);
 				}
 			}
-
 			
 			string json = ToJson();
 			File.WriteAllText(path + Path.DirectorySeparatorChar + info.Name + ".PM" + MagicCode[3] + ".json", json);
