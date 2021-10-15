@@ -139,6 +139,8 @@ namespace LibellusLibrary.PMD
 
 		public void ExtractPmd(string path)
 		{
+			DirectoryInfo info = Directory.CreateDirectory(path);
+
 			// Extract External Files
 			List<Types.Name> names = TypeTable.Find(x => x.Type == Types.DataTypeID.Name).DataTable.Cast<Types.Name>().ToList();
 			List<Types.TypeTable> externalListTypeTable = TypeTable.Where(x => Types.TypeFactory.GetDataType(x.Type).GetInterfaces().Contains(typeof(Types.IExternalFile))).ToList();
@@ -174,7 +176,7 @@ namespace LibellusLibrary.PMD
 				}
 			}
 
-			DirectoryInfo info = Directory.CreateDirectory(path);
+			
 			string json = ToJson();
 			File.WriteAllText(path + Path.DirectorySeparatorChar + info.Name + ".PM" + MagicCode[3] + ".json", json);
 		}
