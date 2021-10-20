@@ -1,29 +1,60 @@
-﻿using System.IO;
-
+﻿using System;
+using System.IO;
+using System.Linq;
 using LibellusLibrary.Converters;
-
+using LibellusLibrary.Json.Converters;
+using LibellusLibrary.PMD.Frames;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System.Reflection;
+using Newtonsoft.Json.Linq;
 
 namespace LibellusLibrary.PMD.Types
 {
-	public class Frame : DataType
+
+	//[JsonConverter(typeof(FrameInfo))]
+	public class Frame : DataType, IVersioningHandler, IVersioning
 	{
-		public override DataTypeID TypeID => DataTypeID.Frame;
+		[JsonIgnore] public override DataTypeID TypeID => DataTypeID.Frame;
+
+		[JsonIgnore] public FormatVersion Version;
+
+		Type IVersioningHandler.GetTypeFromVersion(FormatVersion version) { return GetTypeFromVersion(version); }
+		public static Type GetTypeFromVersion(FormatVersion version)
+		{
+			if (GetSupportedVersions().Contains(version))
+			{
+				return typeof(Frame);
+			}
+			
+			throw new System.NotImplementedException();
+		}
+
+		FormatVersion[] IVersioning.GetSupportedVersions() { return GetSupportedVersions(); }
+		public static FormatVersion[] GetSupportedVersions()
+		{
+			return new FormatVersion[] {
+					FormatVersion.v4_Nocturne,
+					FormatVersion.v12_Persona3_4,
+					FormatVersion.v13_Persona3_4
+			};
+		}
+		
+
+
 
 		[JsonConverter(typeof(StringEnumConverter))]
 		public FrameInfoType InfoType;
 		public ushort FrameStart;
 		public ushort Length;
 		public short NameIndex;
-		//public PmdFrameObject Object;
-		[JsonConverter(typeof(ByteArrayToHexArray))]
-		public byte[] FrameInfo;
+		[JsonConverter(typeof(DontDeserializeJsonConverter))]
+		public FrameInfo FrameInfo;
 
-		public Frame() { }
-		public Frame(string path) { Open(path); }
-		public Frame(Stream stream, bool leaveOpen = false) { Open(stream, leaveOpen); }
-		public Frame(BinaryReader reader) { Open(reader); }
+		public Frame(FormatVersion version) { Version = version; }
+		public Frame(string path, FormatVersion version) { Version = version; Open(path); }
+		public Frame(Stream stream, FormatVersion version, bool leaveOpen = false) { Version = version; Open(stream, leaveOpen); }
+		public Frame(BinaryReader reader, FormatVersion version) { Version = version; Open(reader); }
 
 		internal override void Read(BinaryReader reader)
 		{
@@ -31,7 +62,7 @@ namespace LibellusLibrary.PMD.Types
 			FrameStart = reader.ReadUInt16();
 			Length = reader.ReadUInt16();
 			NameIndex = reader.ReadInt16();
-			FrameInfo = reader.ReadBytes(52);
+			FrameInfo = FrameInfoFactory.CreateFrameInfo(InfoType, Version, reader);
 			return;
 		}
 
@@ -41,73 +72,23 @@ namespace LibellusLibrary.PMD.Types
 			writer.Write(FrameStart);
 			writer.Write(Length);
 			writer.Write(NameIndex);
-			writer.Write(FrameInfo);
+			FrameInfo.Write(writer);
 			return;
 		}
 
-	}
+		public static Frame ReadJson(JsonReader reader, JsonSerializer serializer, FormatVersion version)
+		{
+			var jsonObject = JObject.Load(reader);
+			var frame = new Frame(version);
+			serializer.Populate(jsonObject.CreateReader(), frame);
+			//serializer.Populate(jsonObject["DataTable"].CreateReader(), data);
+			
+			Type infoType = (Type)Frames.FrameInfoFactory.GetVersionFrameInfoFactory(version).GetMethod("GetFrameInfoFromType", BindingFlags.Static | BindingFlags.Public).Invoke(null,new object[] { frame.InfoType});
+			frame.FrameInfo = (FrameInfo)Activator.CreateInstance(infoType);
+			serializer.Populate(jsonObject["FrameInfo"].CreateReader(), frame.FrameInfo);
+			return frame;
 
-	public enum FrameInfoType : short
-	{
-		STAGE = 0,
-		UNIT = 1,
-		CAMERA = 2,
-		EFFECT = 3,
-		MESSAGE = 4,
-		SE = 5,
-		FADE = 6,
-		QUAKE = 7,
-		BLUR = 8,
-		LIGHT = 9,
-		SLIGHT = 10,
-		SFOG = 11,
-		SKY = 12,
-		BLUR2 = 13,
-		MBLUR = 14,
-		DBLUR = 15,
-		FILTER = 16,
-		MFILTER = 17,
-		BED = 18,
-		BGM = 19,
-		MG1 = 20,
-		MG2 = 21,
-		FB = 22,
-		RBLUR = 23,
-
-		TMX = 24,
-
-		EPL = 26,
-		HBLUR = 27,
-		PADACT = 28,
-		MOVIE = 29,
-		TIMEI = 30,
-		RENDERTEX = 31,
-		BISTA = 32,
-		CTLCAM = 33,
-		WAIT = 34,
-		B_UP = 35,
-		CUTIN = 36,
-		EVENT_EFFECT = 37,
-		JUMP = 38,
-		KEYFREE = 39,
-		RANDOMJUMP = 40,
-		CUSTOMEVENT = 41,
-		CONDJUMP = 42,
-		COND_ON = 43,
-		COMULVJUMP = 44,
-		COUNTJUMP = 45,
-		HOLYJUMP = 46,
-		FIELDOBJ = 47,
-		PACKMODEL = 48,
-		FIELDEFF = 49,
-		SPUSE = 50,
-		SCRIPT = 51,
-		BLURFILTER = 52,
-		FOG = 53,
-		ENV = 54,
-		FLDSKY = 55,
-		FLDNOISE = 56,
-		CAMERA_STATE = 57
-	}
+		}
+	}	
 
 }

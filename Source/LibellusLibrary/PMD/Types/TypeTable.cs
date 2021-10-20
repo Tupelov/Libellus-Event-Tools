@@ -8,12 +8,14 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using LibellusLibrary.Json.Converters;
 using System.Collections;
+using LibellusLibrary.Utils;
 
 namespace LibellusLibrary.PMD.Types
 {
-	[JsonConverter(typeof(TypeTableJsonConverter))]
+	//[JsonConverter(typeof(TypeTableJsonConverter))]
 	public class TypeTable : FileBase
 	{
+		[JsonIgnore] public FormatVersion Version { get; set; }
 
 		[JsonConverter(typeof(StringEnumConverter))]
 		public DataTypeID Type;
@@ -24,12 +26,13 @@ namespace LibellusLibrary.PMD.Types
 		[JsonConverter(typeof(DontDeserializeJsonConverter))]
 		public List<DataType> DataTable;
 
-		public TypeTable() { }
-		public TypeTable(string path) { Open(path); }
-		public TypeTable(Stream stream, bool leaveOpen = false) { Open(stream, leaveOpen); }
-		public TypeTable(BinaryReader reader) { Open(reader); }
+		
+		public TypeTable(FormatVersion version) { Version = version;   }
+		public TypeTable(string path, FormatVersion version) { Version = version; Open(path); }
+		public TypeTable(Stream stream, FormatVersion version, bool leaveOpen = false) { Version = version;  Open(stream, leaveOpen); }
+		public TypeTable(BinaryReader reader, FormatVersion version) { Version = version; Open(reader); }
 
-		public TypeTable(DataTypeID type, int itemSize, List<DataType> dataTable)
+		public TypeTable(DataTypeID type, int itemSize, List<DataType> dataTable, Version version)
 		{
 			Type = type;
 			ItemSize = itemSize;
@@ -51,7 +54,7 @@ namespace LibellusLibrary.PMD.Types
 			reader.FSeek(ItemAddress);
 			for (int i = 0; i < dataCount; i++)
 			{
-				DataType Entry = TypeFactory.CreateDataType(Type, reader, ItemSize);
+				DataType Entry = TypeFactory.CreateDataType(Type, reader, Version, ItemSize);
 				DataTable.Add(Entry);
 			}
 			reader.FSeek(currentPos);
@@ -65,29 +68,25 @@ namespace LibellusLibrary.PMD.Types
 			writer.Write(ItemAddress);
 			return;
 		}
-
-	}
-
-	public sealed class TypeTableJsonConverter : JsonConverter<TypeTable>
-	{
-		static IList CreateGenericList(Type typeInList)
-		{
-			var genericListType = typeof(List<>).MakeGenericType(new[] { typeInList });
-			return (IList)Activator.CreateInstance(genericListType);
-		}
-
-		public override void WriteJson(JsonWriter writer, TypeTable value, JsonSerializer serializer) { }
-		public override bool CanWrite => false;
-		public override TypeTable ReadJson(JsonReader reader, Type objectType, TypeTable existingValue, bool hasExistingValue, JsonSerializer serializer)
+		public void ReadJson(JsonReader reader, JsonSerializer serializer, FormatVersion version)
 		{
 			var jsonObject = JObject.Load(reader);
-			var typeTable = new TypeTable();
-			serializer.Populate(jsonObject.CreateReader(), typeTable);
+			serializer.Populate(jsonObject.CreateReader(), this);
 
-			Type type = TypeFactory.GetDataType(typeTable.Type);
+			Type type = TypeFactory.GetDataType(Type, Version);
 
-			var data = CreateGenericList(type);
-			try {
+			var data = Reflection.CreateListFromType(type);
+			if(type == typeof(Frame))
+			{ // Special handling for frames
+				for(int i = 0; i < jsonObject["DataTable"].Count(); i++)
+				{
+					data.Add(Frame.ReadJson(jsonObject["DataTable"][i].CreateReader(), serializer, version));
+				}
+				DataTable = data.Cast<DataType>().ToList();
+				return;
+			}
+			try
+			{
 				serializer.Populate(jsonObject["DataTable"].CreateReader(), data);
 			}
 			catch (Newtonsoft.Json.JsonSerializationException e)
@@ -97,15 +96,16 @@ namespace LibellusLibrary.PMD.Types
 			}
 			if (data.GetType() == typeof(List<Unknown>))
 			{
-				foreach(Unknown unkData in data)
+				foreach (Unknown unkData in data)
 				{
-					unkData.SetType(typeTable.Type);
+					unkData.SetType(Type);
 				}
 			}
-			typeTable.DataTable = data.Cast<DataType>().ToList();
+			DataTable = data.Cast<DataType>().ToList();
 
-
-			return typeTable;
 		}
+		
 	}
+
+
 }

@@ -15,22 +15,22 @@ namespace LibellusEventEditingTool
 				Console.WriteLine("Not Enough args!");
 				return;
 			}
-			foreach(string file in args)
+			foreach (string file in args)
 			{
 				string ext = Path.GetExtension(file).ToLower();
-				if (ext == ".pm1" || ext == ".pm2" || ext == ".pm3") 
+				if (ext == ".pm1" || ext == ".pm2" || ext == ".pm3")
 				{
 					Console.WriteLine("Coverting to Json: ", file);
 					PmdFile pmdFile = new(file);
 					pmdFile.ExtractPmd(new FileInfo(file).Directory.FullName + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(file));
 					continue;
 				}
-				
-				if(ext == ".json")
+
+				if (ext == ".json")
 				{
 					Console.WriteLine("Coverting to PMD: ", file);
 					PmdFile pmdFile = PmdFile.FromJson(file);
-					string pmdext = "PM"+pmdFile.MagicCode[3];
+					string pmdext = "PM" + pmdFile.MagicCode[3];
 					pmdFile.Save(file + "." + pmdext);
 					//pmdFile2.Save("./output/" + name + ".lib.json" + Path.GetExtension(filePath));
 				}

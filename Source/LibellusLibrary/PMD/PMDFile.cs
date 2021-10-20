@@ -4,9 +4,14 @@ using Newtonsoft.Json;
 using LibellusLibrary.IO;
 using System.Linq;
 using System;
+using Newtonsoft.Json.Converters;
+using LibellusLibrary.Json.Converters;
+using System.Collections;
+using Newtonsoft.Json.Linq;
 
 namespace LibellusLibrary.PMD
 {
+	[JsonConverter(typeof(PmdFileJsonConverter))]
 	public class PmdFile : FileBase
 	{
 		//Header
@@ -17,10 +22,12 @@ namespace LibellusLibrary.PMD
 		public char[] MagicCode;//PMD1/PMD2/PMD3
 		[JsonIgnore] public int ExpandSize;
 		[JsonIgnore] public int TypeTableCount => TypeTable.Count;//Expands to get{return TypeTable.Count}
-		public int Version;
+		[JsonConverter(typeof(StringEnumConverter))]
+		public FormatVersion Version;
 		[JsonIgnore] public int Reserve2;
 		[JsonIgnore] public int Reserve3;
 
+		[JsonConverter(typeof(DontDeserializeJsonConverter))]
 		public List<Types.TypeTable> TypeTable;
 
 		public PmdFile() { }
@@ -31,7 +38,7 @@ namespace LibellusLibrary.PMD
 		internal int getFileSize()
 		{
 			int fileSize = 0x20;//Header Size
-			fileSize = fileSize + (0x10 * TypeTableCount);//TypeTableSize
+			fileSize = fileSize + (0x10 * TypeTable.Count);//TypeTableSize
 
 			foreach (Types.TypeTable typeTableEntry in TypeTable)
 			{
@@ -50,8 +57,8 @@ namespace LibellusLibrary.PMD
 			MagicCode = reader.ReadChars(4);
 			//Console.WriteLine(MagicCode);
 			ExpandSize = reader.ReadInt32();
-			int typeTablecnt = reader.ReadInt32();
-			Version = reader.ReadInt32();
+			int typeTablecnt = reader.ReadInt32();//= TypeTableCount 
+			Version = (FormatVersion)reader.ReadInt32();
 
 			//Console.WriteLine("PMD File Ver.{0}", Version);
 
@@ -61,7 +68,9 @@ namespace LibellusLibrary.PMD
 
 			for (int i = 0; i < typeTablecnt; i++)
 			{
-				TypeTable.Add(new Types.TypeTable(reader));
+				Types.TypeTable typeTable= new(reader, Version);
+				typeTable.Version = Version;
+				TypeTable.Add(typeTable);
 			}
 
 			return;
@@ -76,13 +85,13 @@ namespace LibellusLibrary.PMD
 			writer.Write(FileSize);
 			writer.Write(MagicCode);
 			writer.Write(ExpandSize);
-			writer.Write(TypeTableCount);
-			writer.Write(Version);
+			writer.Write(TypeTable.Count);
+			writer.Write((int)Version);
 			writer.Write(Reserve2);
 			writer.Write(Reserve3);
 
 			//First we write while adjusting the data offsets
-			long dataStart = writer.FTell() + (0x10 * TypeTableCount);
+			long dataStart = writer.FTell() + (0x10 * TypeTable.Count);
 			long dataCurrent = dataStart;
 			foreach (Types.TypeTable typeTableEntry in TypeTable)
 			{
@@ -125,7 +134,7 @@ namespace LibellusLibrary.PMD
 			if (pmdFile.TypeTable.Find(x => x.Type == Types.DataTypeID.Name) != null)
 			{
 				List<Types.Name> names = pmdFile.TypeTable.Find(x => x.Type == Types.DataTypeID.Name).DataTable.Cast<Types.Name>().ToList();
-				List<Types.TypeTable> externalListTypeTable = pmdFile.TypeTable.Where(x => Types.TypeFactory.GetDataType(x.Type).GetInterfaces().Contains(typeof(Types.IExternalFile))).ToList();
+				List<Types.TypeTable> externalListTypeTable = pmdFile.TypeTable.Where(x => Types.TypeFactory.GetDataType(x.Type, pmdFile.Version).GetInterfaces().Contains(typeof(Types.IExternalFile))).ToList();
 				foreach (var type in externalListTypeTable)
 				{
 					List<Types.IExternalFile> externalFiles = type.DataTable.Cast<Types.IExternalFile>().ToList();
@@ -147,7 +156,7 @@ namespace LibellusLibrary.PMD
 			if (TypeTable.Find(x => x.Type == Types.DataTypeID.Name) != null)
 			{
 				List<Types.Name> names = TypeTable.Find(x => x.Type == Types.DataTypeID.Name).DataTable.Cast<Types.Name>().ToList();
-				List<Types.TypeTable> externalListTypeTable = TypeTable.Where(x => Types.TypeFactory.GetDataType(x.Type).GetInterfaces().Contains(typeof(Types.IExternalFile))).ToList();
+				List<Types.TypeTable> externalListTypeTable = TypeTable.Where(x => Types.TypeFactory.GetDataType(x.Type, Version).GetInterfaces().Contains(typeof(Types.IExternalFile))).ToList();
 				foreach (var type in externalListTypeTable)
 				{
 					List<Types.IExternalFile> externalFiles = type.DataTable.Cast<Types.IExternalFile>().ToList();
@@ -185,5 +194,31 @@ namespace LibellusLibrary.PMD
 			File.WriteAllText(path + Path.DirectorySeparatorChar + info.Name + ".PM" + MagicCode[3] + ".json", json);
 		}
 
+	}
+	
+	public sealed class PmdFileJsonConverter : JsonConverter<PmdFile>
+	{
+		public override void WriteJson(JsonWriter writer, PmdFile value, JsonSerializer serializer) { }
+		public override bool CanWrite => false;
+
+		public override PmdFile ReadJson(JsonReader reader, Type objectType, PmdFile existingValue, bool hasExistingValue, JsonSerializer serializer)
+		{
+			var jsonObject = JObject.Load(reader);
+			var pmdFile = new PmdFile();
+			serializer.Populate(jsonObject.CreateReader(), pmdFile);
+			pmdFile.TypeTable = new();
+			JArray typeTable = (JArray)jsonObject["TypeTable"];
+			
+			for (int i = 0; i < typeTable.Count; i++)
+			{
+				pmdFile.TypeTable.Add(new Types.TypeTable(pmdFile.Version));
+				// This is kinda a hacky fix but it works, we're pretty much handling the JsonConverter
+				// ourselves so that we can pass a typeTable that already has Version set.
+				pmdFile.TypeTable[i].ReadJson(typeTable[i].CreateReader(), serializer, pmdFile.Version);
+
+
+			}
+			return pmdFile;
+		}
 	}
 }

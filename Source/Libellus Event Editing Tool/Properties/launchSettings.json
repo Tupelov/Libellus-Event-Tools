@@ -2,7 +2,7 @@
   "profiles": {
     "LibellusEventEditingTool": {
       "commandName": "Project",
-      "commandLineArgs": "\"F:\\Modding\\Persona Modding\\Persona 3\\Files\\data\\EVENT\\test\\e530_080.pm1\" \"F:\\Modding\\Persona Modding\\Persona 3\\Files\\data\\EVENT\\test\\e530_080\\e530_080.PM1.json\""
+      "commandLineArgs": "\"F:\\Modding\\Persona Modding\\Persona 3\\Files\\data\\EVENT\\test\\E340_001.PM2\"  \"F:\\Modding\\Persona Modding\\Persona 3\\Files\\data\\EVENT\\test\\E340_001\\E340_001.PM2.json\""
     }
   }
 }

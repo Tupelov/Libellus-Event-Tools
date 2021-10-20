@@ -1,27 +1,33 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+
+using LibellusLibrary.Utils;
 
 namespace LibellusLibrary.PMD.Types
 {
 	public static class TypeFactory
 	{
-		public static DataType CreateDataType(DataTypeID type)
+		public static DataType CreateDataType(DataTypeID type, FormatVersion version)
 		{
-			Type dataType = GetDataType(type);
+			Type dataType = GetDataType(type, version);
 			return (DataType)Activator.CreateInstance(dataType);
 		}
 
-		public static DataType CreateDataType(DataTypeID type, BinaryReader reader, int size = 0)
+		public static DataType CreateDataType(DataTypeID type, BinaryReader reader, FormatVersion version, int size = 0)
 		{
-			Type dataType = GetDataType(type);
-			if(IsDataTypeVariableSize(dataType))
+			Type dataType = GetDataType(type, version);
+			if(dataType.HasInterface(typeof(IVariableSize)))
 			{
 				if (dataType == typeof(Unknown))
 				{
 					return (DataType)Activator.CreateInstance(dataType, reader, size, type);
 				}
 				return (DataType)Activator.CreateInstance(dataType, reader, size);
+			}else if (dataType.HasInterface(typeof(IVersioning)))
+			{
+				return (DataType)Activator.CreateInstance(dataType, reader, version);
 			}
 			else
 			{
@@ -30,7 +36,7 @@ namespace LibellusLibrary.PMD.Types
 			
 		}
 
-		public static Type GetDataType(DataTypeID type)
+		public static Type GetDataType(DataTypeID type, FormatVersion version)
 		{
 			Type dataType = type switch
 			{
@@ -40,16 +46,13 @@ namespace LibellusLibrary.PMD.Types
 				DataTypeID.Message => typeof(Message),
 				_ => typeof(Unknown)
 			};
-			return dataType;
-		}
-
-		public static bool IsDataTypeVariableSize(Type type)
-		{
-			if (type.GetInterfaces().Contains(typeof(IVariableSize)))
+			if (dataType.HasInterface(typeof(IVersioningHandler)))
 			{
-				return true;
+				MethodInfo method = dataType.GetMethod("GetTypeFromVersion", BindingFlags.Static | BindingFlags.Public);
+				object[] args = { version };
+				dataType = (Type)method.Invoke(null, args);
 			}
-			return false;
+			return dataType;
 		}
 	}
 
