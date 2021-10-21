@@ -8,6 +8,7 @@ using Newtonsoft.Json.Converters;
 using LibellusLibrary.Json.Converters;
 using System.Collections;
 using Newtonsoft.Json.Linq;
+using LibellusLibrary.Converters;
 
 namespace LibellusLibrary.PMD
 {
@@ -19,6 +20,7 @@ namespace LibellusLibrary.PMD
 		[JsonIgnore] public byte FileFormat;
 		[JsonIgnore] public short UserID;
 		[JsonIgnore] public int FileSize => getFileSize();
+		[JsonConverter(typeof(CharArrayToStringConverter))]
 		public char[] MagicCode;//PMD1/PMD2/PMD3
 		[JsonIgnore] public int ExpandSize;
 		[JsonIgnore] public int TypeTableCount => TypeTable.Count;//Expands to get{return TypeTable.Count}

@@ -27,7 +27,7 @@ namespace LibellusLibrary.Converters
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            //serializer.Serialize(writer, Encoding.ASCII.GetString(value.To));
+            serializer.Serialize(writer, new string((char[])value));
         }
     }
 }

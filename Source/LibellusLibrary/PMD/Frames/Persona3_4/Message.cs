@@ -1,15 +1,20 @@
 ﻿using System.IO;
 using LibellusLibrary.Converters;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace LibellusLibrary.PMD.Frames.Persona3_4
 {
 	internal class Message: FrameInfo
 	{
 
+		[JsonConverter(typeof(ByteArrayToHexArray))]
 		public byte[] Flags;
-		public short MessageIndex;
-		public short Field0E;
+		public byte MessageIndex;
+		public byte Field0D;
+		public byte Field0E;
+		public byte Field0F;
+		[JsonConverter(typeof(StringEnumConverter))]
 		public MessageMode Mode;
 		public int Field14;
 		public int Field18;
@@ -29,8 +34,10 @@ namespace LibellusLibrary.PMD.Frames.Persona3_4
 		internal override void Read(BinaryReader reader)
 		{
 			Flags = reader.ReadBytes(12);
-			MessageIndex = reader.ReadInt16();
-			Field0E = reader.ReadInt16();
+			MessageIndex = reader.ReadByte();
+			Field0D = reader.ReadByte();
+			Field0E = reader.ReadByte();
+			Field0F = reader.ReadByte();
 			Mode = (MessageMode)reader.ReadInt32();
 			Field14 = reader.ReadInt32();
 			Field18 = reader.ReadInt32();
@@ -46,7 +53,9 @@ namespace LibellusLibrary.PMD.Frames.Persona3_4
 		{
 			writer.Write(Flags);
 			writer.Write(MessageIndex);
+			writer.Write(Field0D);
 			writer.Write(Field0E);
+			writer.Write(Field0F);
 			writer.Write((int)Mode);
 			writer.Write(Field14);
 			writer.Write(Field18);
