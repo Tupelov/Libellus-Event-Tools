@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using LibellusLibrary.PMD.Frames.Persona3_4;
 namespace LibellusLibrary.PMD.Frames
 {
 	public class Persona3_4FrameFactory
@@ -13,7 +13,8 @@ namespace LibellusLibrary.PMD.Frames
 		{
 			Type frameInfoType = infoType switch
 			{
-				_ => typeof(Persona3_4.Unknown)
+				FrameInfoType.Message=> typeof(Message),
+				_ => typeof(Unknown)
 			};
 
 			return frameInfoType;

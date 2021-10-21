@@ -1,5 +1,9 @@
-﻿using System.Diagnostics;
+﻿using LibellusLibrary.Converters;
+using Newtonsoft.Json;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using LibellusLibrary.Utils;
 
 namespace LibellusLibrary.PMD.Types
 {
@@ -23,6 +27,9 @@ namespace LibellusLibrary.PMD.Types
 
 		private string _string;
 
+	//	[JsonConverter(typeof(CharArrayToStringConverter))]
+	//	public char[] Chars;
+
 		public Name() { }
 		public Name(string path) { Open(path); }
 		public Name(Stream stream, bool leaveOpen = false) { Open(stream, leaveOpen); }
@@ -30,12 +37,15 @@ namespace LibellusLibrary.PMD.Types
 
 		internal override void Read(BinaryReader reader)
 		{
-			String = new(reader.ReadChars(32));
+			byte[] temp = reader.ReadBytes(32);
+			//Chars = temp;
+			//
+			String = Text.ASCII8ToString(temp);
 			return;
 		}
 		internal override void Write(BinaryWriter writer)
 		{
-			char[] temp = String.ToCharArray();
+			byte[] temp = Text.StringtoASCII8(String);
 			System.Array.Resize(ref temp, 32);
 			writer.Write(temp);
 		}

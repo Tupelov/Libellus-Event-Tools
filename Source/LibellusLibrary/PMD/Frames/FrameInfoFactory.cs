@@ -40,7 +40,7 @@ namespace LibellusLibrary.PMD.Frames
 		UNIT = 1,
 		CAMERA = 2,
 		EFFECT = 3,
-		MESSAGE = 4,
+		Message = 4,
 		SE = 5,
 		FADE = 6,
 		QUAKE = 7,
