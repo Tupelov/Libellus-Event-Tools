@@ -39,7 +39,7 @@ namespace LibellusLibrary.Event
 
 
 		/// <summary>
-		/// Read a JSON file and turn it into a PMD
+		/// Serialize PMD
 		/// </summary>
 		/// <param name="directoryToExtract"></param>
 		/// <param name="filename"></param>

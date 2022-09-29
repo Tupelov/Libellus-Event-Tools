@@ -25,16 +25,17 @@ namespace LibellusEventTool
 				string ext = Path.GetExtension(file).ToLower();
 				if (ext == ".pm1" || ext == ".pm2" || ext == ".pm3")
 				{
-					Console.WriteLine("Coverting to Json: ", file);;
+					Console.WriteLine("Coverting to Json: "+ file);;
 					PmdReader reader = new PmdReader();
 					PolyMovieData pmd = await reader.ReadPmd(file);
-					pmd.ExtractPmd(file, Path.GetFileNameWithoutExtension(file));
+					string folder = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file));
+					pmd.ExtractPmd(folder, Path.GetFileName(file));
 					continue;
 				}
 
 				if (ext == ".json")
 				{
-					Console.WriteLine("Coverting to PMD: ", file);
+					Console.WriteLine("Coverting to PMD: "+ file);
 					PolyMovieData pmd = await PolyMovieData.LoadPmd(Path.Combine(file));
 					string pmdext = "PM" + pmd.MagicCode[3];
 					pmd.SavePmd(file + "." + pmdext);
