@@ -64,7 +64,7 @@ namespace LibellusLibrary.Event.Types
 		Name = 1,
 		Stage = 2,
 		Unit = 3,
-		Frame = 4,
+		FrameTable = 4,
 		Camera = 5,
 		Message = 6,
 		Effect = 7,

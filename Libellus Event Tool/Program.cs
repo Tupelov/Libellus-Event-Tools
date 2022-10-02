@@ -29,7 +29,7 @@ namespace LibellusEventTool
 					PmdReader reader = new PmdReader();
 					PolyMovieData pmd = await reader.ReadPmd(file);
 					string folder = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file));
-					pmd.ExtractPmd(folder, Path.GetFileName(file));
+					await pmd.ExtractPmd(folder, Path.GetFileName(file));
 					continue;
 				}
 

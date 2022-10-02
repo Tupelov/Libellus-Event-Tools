@@ -61,8 +61,6 @@ namespace LibellusLibrary.Event.Types
 		{
 			Data = new List<byte[]>();
 		}
-
-		// This is dumb, mem streams are synchronus
 		internal override void SaveData(PmdBuilder builder, BinaryWriter writer)
 		{
 			foreach (var data in Data)

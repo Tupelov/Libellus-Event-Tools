@@ -33,9 +33,10 @@ namespace LibellusLibrary.Event.Types
 
 		public static ITypeCreator GetTypeCreator(PmdTypeID Type)=> Type switch
 		{
-			PmdTypeID.Message => new PmdData_Message(),
 			PmdTypeID.CutInfo => new PmdData_Cutinfo(),
 			PmdTypeID.Unit => new PmdData_Unit(),
+			PmdTypeID.FrameTable => new PmdData_FrameTable(),
+			PmdTypeID.Message => new PmdData_Message(),
 			_ => new UnkType()
 		};
 
